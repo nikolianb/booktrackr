@@ -131,4 +131,21 @@ router.get("/read-later", authMiddleware, async (req, res) => {
     }
 });
 
+router.delete("/favorite/:bookId", authMiddleware, async (req, res) => {
+    const { bookId } = req.params;
+    const userId = req.user.userId;
+
+    try {
+        let userBook = await UserBook.findOne({ userId, bookId });
+        if (userBook) {
+            userBook.isFavorite = false;
+            await userBook.save();
+        }
+
+        res.json({ message: "Book removed from favorites" });
+    } catch (error) {
+        res.status(500).json({ message: "Error removing book from favorites" });
+    }
+});
+
 module.exports = router;
