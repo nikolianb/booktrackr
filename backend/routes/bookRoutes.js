@@ -44,4 +44,16 @@ router.get("/search/:title", async (req, res) => {
     }
 });
 
+router.get("/:bookId", async (req, res) => {
+    try {
+        const book = await Book.findById(req.params.bookId);
+        if (!book) {
+            return res.status(404).json({ message: "Book not found" });
+        }
+        res.json(book);
+    } catch (error) {
+        console.error("Error fetching book:", error);
+        res.status(500).json({ message: "Server error while fetching book" });
+    }
+});
 module.exports = router;

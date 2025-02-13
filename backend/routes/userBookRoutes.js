@@ -73,24 +73,31 @@ router.get("/search/:title", async (req, res) => {
     }
 });
 
-router.post("/favorite", authMiddleware, async (req, res) => {
-    const { bookId } = req.body;
-    const userId = req.user.userId;
+router.post("/favorite", async (req, res) => {
+    const { userId, bookId } = req.body; 
+
+    if (!userId || !bookId) {
+        return res.status(400).json({ message: "Missing userId or bookId" });
+    }
 
     try {
         let userBook = await UserBook.findOne({ userId, bookId });
+
         if (!userBook) {
             userBook = new UserBook({ userId, bookId, isFavorite: true });
         } else {
-            userBook.isFavorite = !userBook.isFavorite;
+            userBook.isFavorite = !userBook.isFavorite; 
         }
 
         await userBook.save();
+
         res.json({ message: "Favorite status updated", isFavorite: userBook.isFavorite });
     } catch (error) {
+        console.error("Error updating favorite status:", error);
         res.status(500).json({ message: "Error updating favorite status" });
     }
 });
+
 
 router.get("/favorites", authMiddleware, async (req, res) => {
     const userId = req.user.userId;
